@@ -1,7 +1,4 @@
 # Proyecto01_modelado
-# Detector y Clasificador de Figuras Geométricas en Archivos `.BMP`
-
-Este proyecto es una herramienta ejecutable desde la línea de comandos (CLI) capaz de procesar imágenes en formato `.bmp`, identificar figuras geométricas de colores sólidos sobre un fondo uniforme y clasificarlas por su categoría y color en formato hexadecimal.
 
 ## 👥 Datos Generales
 
@@ -13,79 +10,87 @@ Este proyecto es una herramienta ejecutable desde la línea de comandos (CLI) ca
 
 * **Hazel Torres Nava** - [319158496 / hazelt@ciecnias.unam.mx]
 
+# Detector y Clasificador de Figuras Geométricas
 
-## 🏷️ Categorías de Clasificación
-
-| Código | Categoría     | Figuras Incluidas                                         |
-| :----: | ------------- | --------------------------------------------------------- |
-|  **C** | Cuadriláteros | Cuadrados, rectángulos, rombos, trapezoides               |
-|  **T** | Triángulos    | Equiláteros, isósceles, escalenos, rectángulos            |
-|  **O** | Círculos      | Formas circulares simétricas                              |
-|  **X** | Otros         | Cualquier polígono o forma que no caiga en las anteriores |
+Este proyecto es una herramienta de línea de comandos (CLI) desarrollada en Python que analiza imágenes en formato `.bmp` para detectar figuras geométricas de colores sólidos sobre un fondo uniforme. Identifica cada figura agrupando sus píxeles contiguos y reporta su color en formato hexadecimal junto con su categoría geométrica.
 
 ## 📁 Estructura del Proyecto
 
+El repositorio está organizado de la siguiente manera:
+
 ```text
 .
-├── main.py            # Punto de entrada principal (CLI) y orquestador
-├── lector_bmp.py      # Módulo de lectura, manejo de píxeles y segmentación por color (DFS)
-├── clasificador.py    # Módulo de clasificación geométrica mediante análisis de perfil radial
-├── generador.py       # Script auxiliar para generar el banco de imágenes de prueba
-├── img/               # Directorio para almacenar las imágenes de prueba (.bmp)
-└── README.md          # Instrucciones y datos generales del repositorio
+├── main.py            # Archivo principal y orquestador del programa
+├── lector_col.py      # Lectura de imágenes y agrupación de píxeles por color
+├── clasificador.py    # Clasificación geométrica mediante perfiles radiales
+├── img/
+│   └── generador.py   # Generador automático de imágenes de prueba
+└── README.md          # Documentación del proyecto
 ```
 
-## ⚙️ Requisitos e Instalación
+### Descripción de los archivos
 
-* **Python 3.8 o superior**
-* **Pillow (PIL):** Requerida únicamente para ejecutar el script `generador.py`, que crea las imágenes de prueba.
+* `main.py`: Archivo principal que recibe los argumentos de la consola, valida la extensión del archivo y orquesta la clasificación.
+* `lector_col.py`: Módulo encargado de leer la imagen, manejar posibles errores de archivo y agrupar los píxeles por color usando un algoritmo iterativo con una pila (DFS).
+* `clasificador.py`: Algoritmo matemático que extrae el contorno de los píxeles, calcula el centroide y utiliza perfiles radiales divididos en 72 rebanadas para clasificar la geometría.
+* `img/`: Directorio donde se almacenan las imágenes de prueba.
 
-### Instalación
+  * `generador.py`: Script que utiliza la librería Pillow (PIL) para dibujar y guardar 10 imágenes `.bmp` de prueba de forma automática.
 
-1. Clonar el repositorio:
+## ⚙️ Requisitos Previos
 
-```bash
-git clone https://github.com/tu-usuario/tu-repositorio.git
-cd tu-repositorio
-```
-
-2. Instalar la dependencia necesaria para el generador de pruebas:
+Para ejecutar el programa base no se requieren librerías externas pesadas. Sin embargo, para generar el banco de imágenes de prueba es necesario instalar `Pillow`.
 
 ```bash
-pip install pillow
+pip install Pillow
 ```
 
 ## 🚀 Guía de Uso
 
-### 1. Generar el banco de pruebas
+### 1. Generar el banco de imágenes de prueba
 
-Para crear automáticamente las imágenes `.bmp` de prueba en la carpeta `img/`, ejecuta:
+El script generador se encuentra dentro de la carpeta `img`, por lo que debe ejecutarse desde ese directorio para que las imágenes se guarden correctamente en la misma ubicación:
 
 ```bash
+cd img
 python generador.py
+cd ..
 ```
 
-### 2. Clasificar una imagen
+Esto creará archivos `.bmp` como:
 
-Ejecuta `main.py` pasando la ruta del archivo `.bmp` como parámetro desde la terminal.
+* `prueba_01_cuadrado.bmp`
+* `prueba_07_circulo.bmp`
+* `prueba_10_multiforma.bmp`
 
-#### Ejemplo con una sola figura
+Estos archivos quedan listos para ser analizados por el clasificador.
 
-```bash
-python main.py img/prueba_01_cuadrado.bmp
-```
+### 2. Analizar una imagen
 
-#### Ejemplo con múltiples figuras en la misma imagen
+Para procesar una imagen, se ejecuta `main.py` pasando como argumento la ruta relativa del archivo `.bmp`:
 
 ```bash
 python main.py img/prueba_10_multiforma.bmp
 ```
 
+## 🏷️ Categorías de Clasificación
+
+El sistema analiza los vértices y la desviación estándar de la figura para clasificarla en una de las siguientes cuatro categorías:
+
+| Código | Categoría    | Criterio                                                      |
+| :----: | ------------ | ------------------------------------------------------------- |
+|  **C** | Cuadrilátero | La figura presenta 4 picos sobresalientes en su contorno.     |
+|  **T** | Triángulo    | La figura presenta exactamente 3 picos en su perfil radial.   |
+|  **O** | Círculo      | La desviación del radio respecto al promedio es menor al 12%. |
+|  **X** | Otro         | Figura irregular que no cumple con los criterios anteriores.  |
+
 ## 📊 Ejemplo de Salida
+
+Al ejecutar correctamente el clasificador, la terminal devuelve un reporte en forma de tabla:
 
 ```text
 Cargando imagen 'img/prueba_10_multiforma.bmp'...
-✅ Se encontraron 3 figura(s). Analizando...
+Se encontraron 3 figura(s). Analizando...
 
 --------------------------------------------------
 Figura   | Categoría            | Color Hex
